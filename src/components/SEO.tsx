@@ -9,7 +9,7 @@ type SEOProps = {
 
 const SITE_NAME = 'GryphalCode'
 const SITE_URL = 'https://gryphalcode.com'
-const OG_IMAGE = `${SITE_URL}/images/og-image.jpg`
+const OG_IMAGE = `${SITE_URL}/images/hero-visual.svg`
 
 export default function SEO({ title, description, path, noindex = false }: SEOProps) {
   useEffect(() => {
@@ -35,9 +35,7 @@ export default function SEO({ title, description, path, noindex = false }: SEOPr
     updateMeta('property', 'og:site_name', SITE_NAME)
     updateMeta('property', 'og:image', OG_IMAGE)
     updateMeta('property', 'og:image:alt', 'GryphalCode software engineering and technology services')
-    updateMeta('property', 'og:image:type', 'image/jpeg')
-    updateMeta('property', 'og:image:width', '1200')
-    updateMeta('property', 'og:image:height', '630')
+    updateMeta('property', 'og:image:type', 'image/svg+xml')
     updateMeta('name', 'twitter:card', 'summary_large_image')
     updateMeta('name', 'twitter:title', title)
     updateMeta('name', 'twitter:description', description)
