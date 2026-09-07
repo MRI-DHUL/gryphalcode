@@ -5,14 +5,23 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  quality:
+    name: TypeScript quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,7 +29,34 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Type check
+        run: npx tsc -b --pretty false
+
+      - name: Check for debug statements
+        run: |
+          if grep -RInE 'console\.log\(|debugger[[:space:];]' src --exclude='*.map'; then
+            echo 'Debug statements found in src.'
+            exit 1
+          fi
+
+  build:
+    name: Production build
+    runs-on: ubuntu-latest
+    needs: quality
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Install dependencies
         run: npm install --no-audit --no-fund
@@ -28,33 +64,198 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Collect build evidence
+      - name: Validate build output
+        run: |
+          test -f dist/index.html
+          test -f dist/404.html
+          test -f dist/robots.txt
+          test -f dist/sitemap.xml
+          test "$(find dist -name index.html | wc -l)" -ge 13
+
+      - name: Write build evidence
         if: always()
         run: |
           mkdir -p evidence
           {
-            echo "GryphalCode CI build evidence"
+            echo 'GryphalCode production build evidence'
             echo "Commit: $GITHUB_SHA"
-            echo "Ref: $GITHUB_REF"
             echo "Node: $(node --version)"
             echo "npm: $(npm --version)"
             echo "Timestamp (UTC): $(date -u +%Y-%m-%dT%H:%M:%SZ)"
             echo
-            echo "Generated dist files:"
-            find dist -type f -print | sort 2>/dev/null || true
+            echo 'Generated HTML routes:'
+            find dist -name index.html -print | sort
             echo
-            echo "Prerendered HTML routes:"
-            find dist -name index.html -print | sort 2>/dev/null || true
-            echo
-            echo "404 page:"
-            test -f dist/404.html && echo "present" || echo "missing"
+            echo 'Required files:'
+            for file in dist/index.html dist/404.html dist/robots.txt dist/sitemap.xml; do
+              test -f "$file" && echo "PASS $file" || echo "FAIL $file"
+            done
           } > evidence/build.txt
+
+      - name: Upload production artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gryphalcode-dist-${{ github.sha }}
+          path: dist/
+          retention-days: 7
 
       - name: Upload build evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: gryphalcode-build-evidence
+          name: gryphalcode-build-evidence-${{ github.sha }}
           path: evidence/
+          if-no-files-found: warn
+          retention-days: 14
+
+  smoke:
+    name: Route and prerender smoke tests
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download production artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: gryphalcode-dist-${{ github.sha }}
+          path: dist
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install runtime dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Start preview server
+        run: npm run preview -- --host 127.0.0.1 > /tmp/gryphalcode-preview.log 2>&1 &
+
+      - name: Wait for server
+        run: |
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/gryphalcode-preview.log
+          exit 1
+
+      - name: Test public routes
+        run: |
+          set -u
+          mkdir -p evidence
+          status=0
+          : > evidence/routes.txt
+          routes="/ /about /services /services/software-development /services/web-development /services/mobile-applications /services/cloud-backend /services/software-modernization /services/technical-consulting /case-studies /blog /events /contact"
+          for path in $routes; do
+            code=$(curl --silent --show-error -o /tmp/route.html -w '%{http_code}' "http://127.0.0.1:4173$path") || code=000
+            if [ "$code" = '200' ] && grep -q 'GryphalCode' /tmp/route.html; then
+              echo "PASS $code $path" | tee -a evidence/routes.txt
+            else
+              echo "FAIL $code $path" | tee -a evidence/routes.txt
+              status=1
+            fi
+          done
+          exit "$status"
+
+      - name: Verify prerendered SEO
+        run: |
+          mkdir -p evidence
+          : > evidence/prerender.txt
+          for file in dist/index.html dist/about/index.html dist/services/index.html dist/services/software-development/index.html dist/services/web-development/index.html dist/services/mobile-applications/index.html dist/services/cloud-backend/index.html dist/services/software-modernization/index.html dist/services/technical-consulting/index.html dist/case-studies/index.html dist/blog/index.html dist/events/index.html dist/contact/index.html; do
+            if test -f "$file" && grep -q '<title>' "$file" && grep -q 'rel="canonical"' "$file" && grep -q 'name="description"' "$file"; then
+              echo "PASS $file" | tee -a evidence/prerender.txt
+            else
+              echo "FAIL $file" | tee -a evidence/prerender.txt
+              exit 1
+            fi
+          done
+          test -f dist/404.html
+          echo 'PASS dist/404.html' | tee -a evidence/prerender.txt
+
+      - name: Verify SPA fallback
+        run: |
+          mkdir -p evidence
+          status=$(curl --silent --show-error -o /tmp/unknown-route.html -w '%{http_code}' http://127.0.0.1:4173/this-route-should-not-exist)
+          echo "Unknown route HTTP status: $status" | tee evidence/fallback.txt
+          test "$status" = '200'
+          grep -q 'id="root"' /tmp/unknown-route.html
+          echo 'Fallback root marker: PASS' | tee -a evidence/fallback.txt
+
+      - name: Capture preview log
+        if: always()
+        run: cp /tmp/gryphalcode-preview.log evidence/preview-server.log 2>/dev/null || true
+
+      - name: Upload smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gryphalcode-smoke-evidence-${{ github.sha }}
+          path: evidence/
+          if-no-files-found: warn
+          retention-days: 14
+
+  lighthouse:
+    name: Lighthouse quality gates
+    runs-on: ubuntu-latest
+    needs: smoke
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download production artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: gryphalcode-dist-${{ github.sha }}
+          path: dist
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install runtime dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Start preview server
+        run: npm run preview -- --host 127.0.0.1 > /tmp/gryphalcode-preview.log 2>&1 &
+
+      - name: Wait for server
+        run: |
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/gryphalcode-preview.log
+          exit 1
+
+      - name: Run Lighthouse CI
+        run: npx --yes @lhci/cli@0.15.x autorun --config=lighthouserc.json
+
+      - name: Collect Lighthouse evidence
+        if: always()
+        run: |
+          mkdir -p evidence
+          {
+            echo 'GryphalCode Lighthouse evidence'
+            echo "Commit: $GITHUB_SHA"
+            echo "Timestamp (UTC): $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo
+            cat lighthouserc.json
+          } > evidence/lighthouse-summary.txt
+          cp /tmp/gryphalcode-preview.log evidence/preview-server.log 2>/dev/null || true
+
+      - name: Upload Lighthouse evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gryphalcode-lighthouse-evidence-${{ github.sha }}
+          path: |
+            evidence/
+            .lighthouseci/
           if-no-files-found: warn
           retention-days: 14
