@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { ArrowUpRight, Clock3, Mail, MapPin, MessageSquare, Phone } from 'lucide-react'
 import SEO from '../components/SEO'
+import './contact.css'
 
 const address = '12/26, LakshmiPuram, Ganapathy, Coimbatore, Tamil Nadu - 641006, India'
 const mapUrl = 'https://www.google.com/maps/search/?api=1&query=12%2F26%2C%20LakshmiPuram%2C%20Ganapathy%2C%20Coimbatore%2C%20Tamil%20Nadu%20641006%2C%20India'
