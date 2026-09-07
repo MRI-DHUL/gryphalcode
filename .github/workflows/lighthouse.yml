@@ -17,16 +17,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+
       - name: Build
         run: npm run build
+
       - name: Start preview server
         run: npm run preview -- --host 127.0.0.1 > /tmp/gryphalcode-preview.log 2>&1 &
+
       - name: Wait for server
         run: |
           for i in {1..30}; do
@@ -35,5 +40,34 @@ jobs:
           done
           cat /tmp/gryphalcode-preview.log
           exit 1
+
       - name: Run Lighthouse CI
         run: npx --yes @lhci/cli@0.15.x autorun --config=lighthouserc.json
+
+      - name: Collect Lighthouse evidence
+        if: always()
+        run: |
+          mkdir -p evidence
+          {
+            echo "GryphalCode Lighthouse evidence"
+            echo "Commit: $GITHUB_SHA"
+            echo "Timestamp (UTC): $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo
+            echo "Lighthouse configuration:"
+            cat lighthouserc.json
+            echo
+            echo "Generated Lighthouse files:"
+            find .lighthouseci -maxdepth 2 -type f -print 2>/dev/null | sort || true
+          } > evidence/lighthouse-summary.txt
+          cp /tmp/gryphalcode-preview.log evidence/preview-server.log 2>/dev/null || true
+
+      - name: Upload Lighthouse evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gryphalcode-lighthouse-evidence
+          path: |
+            evidence/
+            .lighthouseci/
+          if-no-files-found: warn
+          retention-days: 14
