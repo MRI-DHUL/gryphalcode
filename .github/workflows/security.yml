@@ -19,9 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
       - name: Install dependencies
@@ -37,7 +37,7 @@ jobs:
           exit "$status"
       - name: Upload dependency evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gryphalcode-dependency-audit-evidence
           path: evidence/
@@ -49,11 +49,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout full history
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Gitleaks
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Collect secret-scan evidence
@@ -68,7 +68,7 @@ jobs:
           } > evidence/gitleaks-summary.txt
       - name: Upload secret-scan evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gryphalcode-secret-scan-evidence
           path: evidence/
@@ -80,7 +80,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Semgrep
         uses: semgrep/semgrep-action@v1
         with:
@@ -97,7 +97,7 @@ jobs:
           } > evidence/semgrep-summary.txt
       - name: Upload Semgrep evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gryphalcode-semgrep-evidence
           path: evidence/
@@ -109,10 +109,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: javascript-typescript
       - name: Analyze
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4

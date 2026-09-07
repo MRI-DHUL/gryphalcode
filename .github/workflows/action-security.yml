@@ -18,9 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Run zizmor
-        uses: zizmorcore/zizmor-action@v0.6.2
+        uses: zizmorcore/zizmor-action@v0.6.3
         with:
           advanced-security: true
       - name: Collect workflow-audit evidence
@@ -36,7 +36,7 @@ jobs:
           } > evidence/zizmor-summary.txt
       - name: Upload workflow-audit evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gryphalcode-actions-audit-evidence
           path: evidence/
