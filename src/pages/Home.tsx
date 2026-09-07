@@ -32,12 +32,8 @@ export default function Home() {
             <NavLink className="text-link" to="/services">Explore services <ArrowRight size={16} /></NavLink>
           </div>
         </div>
-        <div className="hero-visual" aria-hidden="true">
-          <div className="orbit orbit-one" />
-          <div className="orbit orbit-two" />
-          <div className="visual-core">G</div>
-          <div className="visual-dot dot-one" />
-          <div className="visual-dot dot-two" />
+        <div className="hero-visual">
+          <img src="/images/hero-visual.svg" alt="Abstract GryphalCode software architecture visualization" />
         </div>
       </section>
 
@@ -102,7 +98,7 @@ export default function Home() {
         <div className="section-label">06 / SELECTED WORK</div>
         <div className="work-preview-inner">
           <div><p className="eyebrow">CASE STUDIES</p><h2>Real projects.<br /><span>Real constraints.</span></h2></div>
-          <div><p>We will publish detailed case studies as GryphalCode projects are completed and approved for publication.</p><NavLink className="text-link" to="/case-studies">View case studies <ArrowUpRight size={16} /></NavLink></div>
+          <div className="work-preview-content"><img src="/images/work-visual.svg" alt="Abstract project delivery dashboard" /><p>We will publish detailed case studies as GryphalCode projects are completed and approved for publication.</p><NavLink className="text-link" to="/case-studies">View case studies <ArrowUpRight size={16} /></NavLink></div>
         </div>
       </section>
 
