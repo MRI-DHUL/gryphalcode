@@ -37,7 +37,7 @@ export default function CaseStudies() {
           <p>GryphalCode case studies will be published as projects become complete and clients approve the information for public use. That keeps the portfolio useful and credible.</p>
           <div className="case-studies-note">
             <strong>What each story will cover:</strong>
-            <div className="detail-points">
+            <div className="case-study-standards">
               {standards.map((item) => <div key={item}><Check size={17} />{item}</div>)}
             </div>
           </div>
