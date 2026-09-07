@@ -11,6 +11,7 @@ export default function About() {
         <h1>Engineering technology<br /><span>with a reason.</span></h1>
         <p>GryphalCode is a technology company focused on building practical, dependable software for businesses.</p>
       </section>
+      <section className="page-visual"><img src="/images/about-visual.svg" alt="Abstract GryphalCode product engineering interface and architecture visualization" /></section>
       <section className="section content-grid">
         <div className="section-label">01 / WHO WE ARE</div>
         <div className="prose"><h2>We start with the problem.</h2><p>Good software is not about adding technology for its own sake. We learn how a business operates, identify where technology can create leverage, and build systems that people can actually use.</p><p>Our aim is straightforward: clear communication, thoughtful engineering, and software that remains useful as the business grows.</p></div>
