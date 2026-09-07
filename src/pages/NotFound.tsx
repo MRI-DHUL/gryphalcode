@@ -7,8 +7,9 @@ export default function NotFound() {
     <div className="inner-page">
       <SEO
         title="Page Not Found | GryphalCode"
-        description="The page you are looking for could not be found. Return to GryphalCode or explore our services."
+        description="The page you are looking for could not be found. Return to GryphalCode or explore our software development services."
         path="/404"
+        noindex
       />
       <section className="page-hero">
         <p className="eyebrow">404 / PAGE NOT FOUND</p>
