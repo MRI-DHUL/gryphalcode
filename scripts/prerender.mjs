@@ -8,6 +8,7 @@ import { StaticRouter } from 'react-router-dom/server'
 const root = process.cwd()
 const distDir = path.join(root, 'dist')
 const templatePath = path.join(distDir, 'index.html')
+const OG_IMAGE = 'https://gryphalcode.com/images/hero-visual.svg'
 
 const pages = {
   '/': {
@@ -70,7 +71,6 @@ function escapeHtml(value) {
 
 function upsertMeta(html, attribute, key, content) {
   const escaped = escapeHtml(content)
-  const selector = `<meta ${attribute}="${key}" content="`
   const tag = `<meta ${attribute}="${key}" content="${escaped}">`
   const pattern = new RegExp(`<meta\\s+${attribute}="${key}"\\s+content="[^"]*"\\s*/?>`, 'i')
   return pattern.test(html) ? html.replace(pattern, tag) : html.replace('</head>', `  ${tag}\n  </head>`)
@@ -86,12 +86,15 @@ function applyMetadata(html, route, metadata) {
   output = upsertMeta(output, 'property', 'og:description', metadata.description)
   output = upsertMeta(output, 'property', 'og:url', canonical)
   output = upsertMeta(output, 'property', 'og:site_name', 'GryphalCode')
-  output = upsertMeta(output, 'property', 'og:image', 'https://gryphalcode.com/images/og-image.jpg')
+  output = upsertMeta(output, 'property', 'og:image', OG_IMAGE)
   output = upsertMeta(output, 'property', 'og:image:alt', 'GryphalCode software engineering and technology services')
+  output = upsertMeta(output, 'property', 'og:image:type', 'image/svg+xml')
+  output = upsertMeta(output, 'property', 'og:image:width', '1200')
+  output = upsertMeta(output, 'property', 'og:image:height', '630')
   output = upsertMeta(output, 'name', 'twitter:card', 'summary_large_image')
   output = upsertMeta(output, 'name', 'twitter:title', metadata.title)
   output = upsertMeta(output, 'name', 'twitter:description', metadata.description)
-  output = upsertMeta(output, 'name', 'twitter:image', 'https://gryphalcode.com/images/og-image.jpg')
+  output = upsertMeta(output, 'name', 'twitter:image', OG_IMAGE)
 
   const canonicalTag = `<link rel="canonical" href="${canonical}">`
   const canonicalPattern = /<link\s+rel="canonical"\s+href="[^"]*"\s*\/?/i
@@ -124,8 +127,20 @@ try {
     await fs.mkdir(outputDir, { recursive: true })
     await fs.writeFile(path.join(outputDir, 'index.html'), html)
   }
+
+  const notFoundHtml = renderToString(
+    React.createElement(StaticRouter, { location: '/missing-page' }, React.createElement(AppRoutes)),
+  )
+  let errorPage = template.replace('<div id="root"></div>', `<div id="root">${notFoundHtml}</div>`)
+  errorPage = applyMetadata(errorPage, '/404', {
+    title: 'Page Not Found | GryphalCode',
+    description: 'The page you are looking for could not be found. Return to GryphalCode or explore our services.',
+  })
+  errorPage = errorPage.replace(/<meta name="robots" content="[^"]*">/i, '<meta name="robots" content="noindex, follow">')
+  errorPage = await vite.transformIndexHtml('/404', errorPage)
+  await fs.writeFile(path.join(distDir, '404.html'), errorPage)
 } finally {
   await vite.close()
 }
 
-console.log(`Pre-rendered ${Object.keys(pages).length} public routes.`)
+console.log(`Pre-rendered ${Object.keys(pages).length} public routes plus 404.html.`)
