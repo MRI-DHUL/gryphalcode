@@ -34,6 +34,7 @@ export default function Contact() {
       },
       openingHours: 'Mo-Fr 10:00-19:00',
       areaServed: 'Worldwide',
+      serviceType: ['Software development', 'Web development', 'Mobile app development', 'Cloud and backend development', 'Software modernization', 'Technical consulting'],
     })
 
     return () => schema?.remove()
@@ -41,22 +42,18 @@ export default function Contact() {
 
   return (
     <div className="inner-page">
-      <SEO
-        title="Contact GryphalCode | Software Company in Coimbatore"
-        description="Contact GryphalCode in Coimbatore for software development, web, mobile, cloud, backend, automation, and technical consulting projects."
-        path="/contact"
-      />
+      <SEO title="Contact GryphalCode | Software Development in Coimbatore" description="Contact GryphalCode in Coimbatore for custom software development, web and mobile applications, cloud and backend engineering, modernization, and technical consulting." path="/contact" />
       <section className="page-hero">
         <p className="eyebrow">CONTACT GRYPHALCODE</p>
-        <h1>Let's discuss your<br /><span>next project.</span></h1>
-        <p>Tell us what you are building, improving, or trying to solve. We will start with the problem and work from there.</p>
+        <h1>Discuss your software<br /><span>project with our team.</span></h1>
+        <p>Tell us what you are building, improving, automating, or trying to solve. Share the business context, requirements, timeline, and constraints, and we can discuss the right technical approach.</p>
       </section>
       <section className="page-visual">
-        <img src="/images/contact-visual.svg" alt="Abstract GryphalCode partnership network connecting businesses through technology" />
+        <img src="/images/contact-visual.svg" alt="GryphalCode software development partnership and technology network illustration" width="800" height="500" />
       </section>
       <section className="section contact-grid">
         <div>
-          <span className="contact-label">EMAIL</span>
+          <span className="contact-label">SOFTWARE PROJECT ENQUIRIES</span>
           <a className="contact-method" href="mailto:info@gryphalcode.com">
             <Mail size={20} /> info@gryphalcode.com <ArrowUpRight size={17} />
           </a>
@@ -68,7 +65,7 @@ export default function Contact() {
           </a>
         </div>
         <div>
-          <span className="contact-label">OFFICE</span>
+          <span className="contact-label">COIMBATORE OFFICE</span>
           <div className="contact-method muted">
             <MapPin size={20} /> Coimbatore, Tamil Nadu
           </div>
@@ -83,13 +80,13 @@ export default function Contact() {
             <Clock3 size={20} /> Monday - Friday, 10:00 AM - 7:00 PM
           </div>
           <div className="contact-method muted">
-            <MessageSquare size={20} /> Project discussions by email or phone
+            <MessageSquare size={20} /> Software project discussions by email or phone
           </div>
         </div>
       </section>
       <section className="section contact-note">
-        <h2>Useful first message</h2>
-        <p>Include your business context, the problem you want to solve, what you already have, and any important timeline or constraints. You do not need a polished specification.</p>
+        <h2>What to include in your enquiry</h2>
+        <p>Include your business context, the software or process you want to improve, what you already have, your target users, and any important timeline or technical constraints. You do not need a polished specification to start a conversation.</p>
       </section>
     </div>
   )
