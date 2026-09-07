@@ -1,0 +1,48 @@
+name: GitHub Actions Security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "45 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  zizmor:
+    name: Audit GitHub Actions
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run zizmor
+        uses: zizmorcore/zizmor-action@v0.6.2
+        with:
+          advanced-security: true
+
+      - name: Collect workflow-audit evidence
+        if: always()
+        run: |
+          mkdir -p evidence
+          {
+            echo "GitHub Actions audit evidence"
+            echo "Commit: $GITHUB_SHA"
+            echo "Workflow result: ${{ job.status }}"
+            echo "Auditor: zizmorcore/zizmor-action@v0.6.2"
+            echo "Advanced Security mode: enabled"
+          } > evidence/zizmor-summary.txt
+
+      - name: Upload workflow-audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gryphalcode-actions-audit-evidence
+          path: evidence/
+          if-no-files-found: warn
+          retention-days: 14
