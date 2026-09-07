@@ -20,6 +20,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Run zizmor
-        uses: zizmorcore/zizmor-action@v0.2.2
+        uses: zizmorcore/zizmor-action@v0.6.2
         with:
           advanced-security: true
