@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import Home from './pages/Home'
@@ -8,6 +8,7 @@ import CaseStudies from './pages/CaseStudies'
 import Blog from './pages/Blog'
 import Events from './pages/Events'
 import Contact from './pages/Contact'
+import NotFound from './pages/NotFound'
 
 export default function App() {
   return (
@@ -23,7 +24,7 @@ export default function App() {
             <Route path="/blog" element={<Blog />} />
             <Route path="/events" element={<Events />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
         <Footer />
