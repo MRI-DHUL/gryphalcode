@@ -25,6 +25,7 @@ export default function SEO({ title, description, path }: SEOProps) {
     }
 
     updateMeta('name', 'description', description)
+    updateMeta('name', 'robots', 'index, follow')
     updateMeta('property', 'og:type', 'website')
     updateMeta('property', 'og:title', title)
     updateMeta('property', 'og:description', description)
