@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUpRight } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Check } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 
 const services = [
@@ -6,6 +6,15 @@ const services = [
   ['02', 'Web Development', 'Fast, responsive web experiences built for real users.'],
   ['03', 'Mobile Applications', 'Reliable mobile products for iOS and Android.'],
   ['04', 'Cloud & Backend', 'Secure, scalable infrastructure and backend systems.'],
+]
+
+const capabilities = ['React', 'TypeScript', 'Node.js', 'REST APIs', 'SQL & NoSQL', 'Cloud Infrastructure', 'CI/CD', 'Third-party Integrations']
+const industries = ['Business Operations', 'Professional Services', 'E-commerce', 'Startups & Growing Teams', 'Internal Business Systems', 'Customer-facing Platforms']
+const process = [
+  ['01', 'Discover', 'Understand the business problem, users, constraints, and desired outcome.'],
+  ['02', 'Design', 'Shape the solution, architecture, scope, and technical priorities.'],
+  ['03', 'Build', 'Develop in focused iterations with clear communication and review points.'],
+  ['04', 'Launch', 'Release a production-ready system with the foundations for ongoing improvement.'],
 ]
 
 export default function Home() {
@@ -18,7 +27,7 @@ export default function Home() {
           <p className="hero-copy">GryphalCode helps businesses turn ideas, processes, and complex requirements into reliable digital products and software solutions.</p>
           <div className="hero-actions">
             <NavLink className="primary-button" to="/contact">Start a conversation <ArrowUpRight size={17} /></NavLink>
-            <NavLink className="text-link" to="/services">Explore services <ArrowDown size={16} /></NavLink>
+            <NavLink className="text-link" to="/services">Explore services <ArrowRight size={16} /></NavLink>
           </div>
         </div>
         <div className="hero-visual" aria-hidden="true">
@@ -47,21 +56,51 @@ export default function Home() {
         <div className="service-grid">
           {services.map(([number, title, text]) => (
             <article className="service-card" key={number}>
-              <span>{number}</span>
-              <h3>{title}</h3>
-              <p>{text}</p>
+              <span>{number}</span><h3>{title}</h3><p>{text}</p>
               <NavLink to="/services" aria-label={`Learn more about ${title}`}><ArrowUpRight size={18} /></NavLink>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="split-section section">
-        <div className="section-label">03 / APPROACH</div>
-        <div>
-          <p className="eyebrow">BUILT FOR THE LONG TERM</p>
-          <h2>Clear thinking. Solid engineering. <span>Useful outcomes.</span></h2>
-          <p>From first requirements to production and ongoing improvement, we keep decisions grounded in business value, maintainability, security, and performance.</p>
+      <section className="capabilities section">
+        <div className="section-label">03 / CAPABILITIES</div>
+        <div className="section-heading capabilities-heading">
+          <h2>Modern technology.<br /><span>Practical engineering.</span></h2>
+          <p>We choose technology around the requirements of the product — balancing delivery speed, maintainability, security, and long-term cost.</p>
+        </div>
+        <div className="capability-list">
+          {capabilities.map((item) => <span key={item}><Check size={15} />{item}</span>)}
+        </div>
+      </section>
+
+      <section className="process section">
+        <div className="section-label">04 / HOW WE WORK</div>
+        <div className="process-grid">
+          {process.map(([number, title, text]) => (
+            <article className="process-card" key={number}>
+              <span>{number}</span><h3>{title}</h3><p>{text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="industries section">
+        <div className="section-label">05 / WHO WE WORK WITH</div>
+        <div className="section-heading">
+          <h2>Technology for businesses<br /><span>with something to build.</span></h2>
+          <p>From new digital products to internal systems that need improvement, we focus on software with a clear business purpose.</p>
+        </div>
+        <div className="industry-grid">
+          {industries.map((item, index) => <div className="industry-item" key={item}><span>0{index + 1}</span>{item}</div>)}
+        </div>
+      </section>
+
+      <section className="work-preview section">
+        <div className="section-label">06 / SELECTED WORK</div>
+        <div className="work-preview-inner">
+          <div><p className="eyebrow">CASE STUDIES</p><h2>Real projects.<br /><span>Real constraints.</span></h2></div>
+          <div><p>We will publish detailed case studies as GryphalCode projects are completed and approved for publication.</p><NavLink className="text-link" to="/case-studies">View case studies <ArrowUpRight size={16} /></NavLink></div>
         </div>
       </section>
 
