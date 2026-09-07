@@ -14,16 +14,6 @@ export default function SEO({ title, description, path }: SEOProps) {
     const url = `${SITE_URL}${path}`
     document.title = title
 
-    const setMeta = (selector: string, attribute: 'name' | 'property', value: string) => {
-      let element = document.head.querySelector<HTMLMetaElement>(selector)
-      if (!element) {
-        element = document.createElement('meta')
-        element.setAttribute(attribute, selector.includes('[') ? selector.split('="')[0].split('[')[1] : '')
-        document.head.appendChild(element)
-      }
-      element.content = value
-    }
-
     const updateMeta = (attribute: 'name' | 'property', key: string, value: string) => {
       let element = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`)
       if (!element) {
@@ -49,10 +39,6 @@ export default function SEO({ title, description, path }: SEOProps) {
       document.head.appendChild(canonical)
     }
     canonical.href = url
-
-    return () => {
-      setMeta
-    }
   }, [title, description, path])
 
   return null
