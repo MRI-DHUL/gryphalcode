@@ -1,9 +1,11 @@
 import { ArrowUpRight } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
+import SEO from '../components/SEO'
 
 export default function About() {
   return (
     <div className="inner-page">
+      <SEO title="About GryphalCode | Software Engineering" description="Learn how GryphalCode approaches software engineering, technology decisions, and practical digital solutions for businesses." path="/about" />
       <section className="page-hero">
         <p className="eyebrow">ABOUT GRYPHALCODE</p>
         <h1>Engineering technology<br /><span>with a reason.</span></h1>
