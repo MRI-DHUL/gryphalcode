@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowUpRight, ChevronDown, Menu, X } from 'lucide-react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 
 const primaryLinks = [
   ['/', 'Home'],
@@ -18,6 +18,8 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
   const [resourcesOpen, setResourcesOpen] = useState(false)
   const menuRef = useRef<HTMLElement>(null)
+  const location = useLocation()
+  const resourceActive = resourceLinks.some(([path]) => location.pathname.startsWith(path))
 
   useEffect(() => {
     if (!open) return
@@ -85,7 +87,7 @@ export default function Navbar() {
           </NavLink>
         ))}
 
-        <div className={resourcesOpen ? 'nav-dropdown active' : 'nav-dropdown'}>
+        <div className={resourceActive || resourcesOpen ? 'nav-dropdown active' : 'nav-dropdown'}>
           <button
             className="nav-dropdown-trigger"
             type="button"
