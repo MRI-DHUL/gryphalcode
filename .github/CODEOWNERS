@@ -1,0 +1,6 @@
+# Security-sensitive repository configuration
+* @MRI-DHUL
+.github/ @MRI-DHUL
+.github/workflows/ @MRI-DHUL
+vercel.json @MRI-DHUL
+SECURITY.md @MRI-DHUL
