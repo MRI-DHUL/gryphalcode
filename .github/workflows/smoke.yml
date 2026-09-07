@@ -1,0 +1,47 @@
+name: Smoke Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Production build smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Build
+        run: npm run build
+      - name: Start preview server
+        run: npm run preview -- --host 127.0.0.1 > /tmp/gryphalcode-preview.log 2>&1 &
+      - name: Wait for server
+        run: |
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/gryphalcode-preview.log
+          exit 1
+      - name: Smoke test public routes
+        run: |
+          set -e
+          for path in / /about /services /services/software-development /services/web-development /services/mobile-applications /services/cloud-backend /services/software-modernization /services/technical-consulting /case-studies /blog /events /contact; do
+            echo "Testing $path"
+            curl --fail --silent --show-error "http://127.0.0.1:4173$path" | grep -q 'GryphalCode'
+          done
+      - name: Verify 404 handling
+        run: |
+          curl --fail --silent http://127.0.0.1:4173/this-route-should-not-exist | grep -q 'Page Not Found'
