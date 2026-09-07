@@ -42,7 +42,8 @@ jobs:
             echo "Testing $path"
             curl --fail --silent --show-error "http://127.0.0.1:4173$path" | grep -q 'GryphalCode'
           done
-      - name: Verify SPA 404 route
+      - name: Verify SPA fallback
         run: |
-          curl --fail --silent http://127.0.0.1:4173/this-route-should-not-exist | grep -q 'Page Not Found'
-          curl --fail --silent http://127.0.0.1:4173/this-route-should-not-exist | grep -q 'This page doesn'
+          status=$(curl --silent --show-error -o /tmp/unknown-route.html -w '%{http_code}' http://127.0.0.1:4173/this-route-should-not-exist)
+          test "$status" = "200"
+          grep -q 'id="root"' /tmp/unknown-route.html
