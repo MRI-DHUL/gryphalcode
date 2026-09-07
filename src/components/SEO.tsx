@@ -4,12 +4,14 @@ type SEOProps = {
   title: string
   description: string
   path: string
+  noindex?: boolean
 }
 
 const SITE_NAME = 'GryphalCode'
 const SITE_URL = 'https://gryphalcode.com'
+const OG_IMAGE = `${SITE_URL}/images/og-image.jpg`
 
-export default function SEO({ title, description, path }: SEOProps) {
+export default function SEO({ title, description, path, noindex = false }: SEOProps) {
   useEffect(() => {
     const url = `${SITE_URL}${path}`
     document.title = title
@@ -25,15 +27,21 @@ export default function SEO({ title, description, path }: SEOProps) {
     }
 
     updateMeta('name', 'description', description)
-    updateMeta('name', 'robots', 'index, follow')
+    updateMeta('name', 'robots', noindex ? 'noindex, follow' : 'index, follow')
     updateMeta('property', 'og:type', 'website')
     updateMeta('property', 'og:title', title)
     updateMeta('property', 'og:description', description)
     updateMeta('property', 'og:url', url)
     updateMeta('property', 'og:site_name', SITE_NAME)
-    updateMeta('name', 'twitter:card', 'summary')
+    updateMeta('property', 'og:image', OG_IMAGE)
+    updateMeta('property', 'og:image:alt', 'GryphalCode software engineering and technology services')
+    updateMeta('property', 'og:image:type', 'image/jpeg')
+    updateMeta('property', 'og:image:width', '1200')
+    updateMeta('property', 'og:image:height', '630')
+    updateMeta('name', 'twitter:card', 'summary_large_image')
     updateMeta('name', 'twitter:title', title)
     updateMeta('name', 'twitter:description', description)
+    updateMeta('name', 'twitter:image', OG_IMAGE)
 
     let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')
     if (!canonical) {
@@ -52,19 +60,37 @@ export default function SEO({ title, description, path }: SEOProps) {
       document.head.appendChild(schema)
     }
 
-    schema.textContent = JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'WebPage',
-      name: title,
-      description,
-      url,
-      isPartOf: {
-        '@type': 'WebSite',
-        name: SITE_NAME,
-        url: `${SITE_URL}/`,
+    const segments = path.split('/').filter(Boolean)
+    const breadcrumbs = [
+      { '@type': 'ListItem', position: 1, name: SITE_NAME, item: `${SITE_URL}/` },
+      ...segments.map((segment, index) => ({
+        '@type': 'ListItem',
+        position: index + 2,
+        name: segment.replace(/-/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase()),
+        item: `${SITE_URL}/${segments.slice(0, index + 1).join('/')}`,
+      })),
+    ]
+
+    schema.textContent = JSON.stringify([
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: title,
+        description,
+        url,
+        isPartOf: {
+          '@type': 'WebSite',
+          name: SITE_NAME,
+          url: `${SITE_URL}/`,
+        },
       },
-    })
-  }, [title, description, path])
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: breadcrumbs,
+      },
+    ])
+  }, [title, description, path, noindex])
 
   return null
 }
