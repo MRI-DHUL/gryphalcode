@@ -67,9 +67,8 @@ export default function Contact() {
         <div>
           <span className="contact-label">COIMBATORE OFFICE</span>
           <div className="contact-method muted">
-            <MapPin size={20} /> Coimbatore, Tamil Nadu
+            <MapPin size={20} /> {address}
           </div>
-          <p>{address}</p>
           <a className="text-link" href={mapUrl} target="_blank" rel="noreferrer">
             Get directions <ArrowUpRight size={15} />
           </a>
