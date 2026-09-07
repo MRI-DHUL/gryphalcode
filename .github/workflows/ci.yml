@@ -27,3 +27,34 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Collect build evidence
+        if: always()
+        run: |
+          mkdir -p evidence
+          {
+            echo "GryphalCode CI build evidence"
+            echo "Commit: $GITHUB_SHA"
+            echo "Ref: $GITHUB_REF"
+            echo "Node: $(node --version)"
+            echo "npm: $(npm --version)"
+            echo "Timestamp (UTC): $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo
+            echo "Generated dist files:"
+            find dist -type f -print | sort 2>/dev/null || true
+            echo
+            echo "Prerendered HTML routes:"
+            find dist -name index.html -print | sort 2>/dev/null || true
+            echo
+            echo "404 page:"
+            test -f dist/404.html && echo "present" || echo "missing"
+          } > evidence/build.txt
+
+      - name: Upload build evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gryphalcode-build-evidence
+          path: evidence/
+          if-no-files-found: warn
+          retention-days: 14
