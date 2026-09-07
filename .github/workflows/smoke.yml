@@ -17,16 +17,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+
       - name: Build
         run: npm run build
+
       - name: Start preview server
         run: npm run preview -- --host 127.0.0.1 > /tmp/gryphalcode-preview.log 2>&1 &
+
       - name: Wait for server
         run: |
           for i in {1..30}; do
@@ -35,15 +40,62 @@ jobs:
           done
           cat /tmp/gryphalcode-preview.log
           exit 1
+
       - name: Smoke test public routes
         run: |
-          set -e
-          for path in / /about /services /services/software-development /services/web-development /services/mobile-applications /services/cloud-backend /services/software-modernization /services/technical-consulting /case-studies /blog /events /contact; do
+          set -u
+          mkdir -p evidence
+          status=0
+          : > evidence/routes.txt
+          routes="/ /about /services /services/software-development /services/web-development /services/mobile-applications /services/cloud-backend /services/software-modernization /services/technical-consulting /case-studies /blog /events /contact"
+          for path in $routes; do
             echo "Testing $path"
-            curl --fail --silent --show-error "http://127.0.0.1:4173$path" | grep -q 'GryphalCode'
+            code=$(curl --silent --show-error -o /tmp/route.html -w '%{http_code}' "http://127.0.0.1:4173$path") || code=000
+            if [ "$code" = "200" ] && grep -q 'GryphalCode' /tmp/route.html; then
+              echo "PASS $code $path" | tee -a evidence/routes.txt
+            else
+              echo "FAIL $code $path" | tee -a evidence/routes.txt
+              status=1
+            fi
           done
+          exit "$status"
+
+      - name: Verify prerendered metadata
+        run: |
+          mkdir -p evidence
+          {
+            echo "Prerender metadata evidence"
+            echo "Commit: $GITHUB_SHA"
+            echo
+            for file in dist/index.html dist/about/index.html dist/services/index.html dist/services/software-development/index.html dist/services/web-development/index.html dist/services/mobile-applications/index.html dist/services/cloud-backend/index.html dist/services/software-modernization/index.html dist/services/technical-consulting/index.html dist/case-studies/index.html dist/blog/index.html dist/events/index.html dist/contact/index.html; do
+              if test -f "$file" && grep -q '<title>' "$file" && grep -q 'rel="canonical"' "$file" && grep -q 'name="description"' "$file"; then
+                echo "PASS $file"
+              else
+                echo "FAIL $file"
+                exit 1
+              fi
+            done
+            test -f dist/404.html && echo "PASS dist/404.html"
+          } | tee evidence/prerender.txt
+
       - name: Verify SPA fallback
         run: |
+          mkdir -p evidence
           status=$(curl --silent --show-error -o /tmp/unknown-route.html -w '%{http_code}' http://127.0.0.1:4173/this-route-should-not-exist)
+          echo "Unknown route HTTP status: $status" | tee evidence/fallback.txt
           test "$status" = "200"
           grep -q 'id="root"' /tmp/unknown-route.html
+          echo "Fallback root marker: PASS" | tee -a evidence/fallback.txt
+
+      - name: Capture preview server log
+        if: always()
+        run: cp /tmp/gryphalcode-preview.log evidence/preview-server.log 2>/dev/null || true
+
+      - name: Upload smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gryphalcode-smoke-evidence
+          path: evidence/
+          if-no-files-found: warn
+          retention-days: 14
