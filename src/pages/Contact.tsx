@@ -52,36 +52,44 @@ export default function Contact() {
         <img src="/images/contact-visual.svg" alt="GryphalCode software development partnership and technology network illustration" width="800" height="500" />
       </section>
       <section className="section contact-grid">
-        <div>
-          <span className="contact-label">SOFTWARE PROJECT ENQUIRIES</span>
-          <a className="contact-method" href="mailto:info@gryphalcode.com">
-            <Mail size={20} /> info@gryphalcode.com <ArrowUpRight size={17} />
-          </a>
-        </div>
-        <div>
-          <span className="contact-label">PHONE</span>
-          <a className="contact-method" href="tel:+918072280620">
-            <Phone size={20} /> +91 80722-80620 <ArrowUpRight size={17} />
-          </a>
-        </div>
-        <div>
-          <span className="contact-label">COIMBATORE OFFICE</span>
-          <div className="contact-method muted">
-            <MapPin size={20} /> {address}
+        <article className="contact-card">
+          <div className="contact-icon"><Mail size={21} /></div>
+          <div className="contact-content">
+            <span className="contact-label">SOFTWARE PROJECT ENQUIRIES</span>
+            <a className="contact-method" href="mailto:info@gryphalcode.com">
+              <span>info@gryphalcode.com</span><ArrowUpRight size={17} />
+            </a>
+            <p className="contact-subtext">We typically respond within 1 business day.</p>
           </div>
-          <a className="text-link" href={mapUrl} target="_blank" rel="noreferrer">
-            Get directions <ArrowUpRight size={15} />
-          </a>
-        </div>
-        <div>
-          <span className="contact-label">BUSINESS HOURS</span>
-          <div className="contact-method muted">
-            <Clock3 size={20} /> Monday - Friday, 10:00 AM - 7:00 PM
+        </article>
+        <article className="contact-card">
+          <div className="contact-icon"><Phone size={21} /></div>
+          <div className="contact-content">
+            <span className="contact-label">PHONE</span>
+            <a className="contact-method" href="tel:+918072280620">
+              <span>+91 80722-80620</span><ArrowUpRight size={17} />
+            </a>
+            <p className="contact-subtext">Mon - Fri, 10:00 AM - 7:00 PM (IST)</p>
           </div>
-          <div className="contact-method muted">
-            <MessageSquare size={20} /> Software project discussions by email or phone
+        </article>
+        <article className="contact-card">
+          <div className="contact-icon"><MapPin size={21} /></div>
+          <div className="contact-content">
+            <span className="contact-label">COIMBATORE OFFICE</span>
+            <p className="contact-address">{address}</p>
+            <a className="text-link contact-directions" href={mapUrl} target="_blank" rel="noreferrer">
+              Get directions <ArrowUpRight size={15} />
+            </a>
           </div>
-        </div>
+        </article>
+        <article className="contact-card">
+          <div className="contact-icon"><Clock3 size={21} /></div>
+          <div className="contact-content">
+            <span className="contact-label">BUSINESS HOURS</span>
+            <p className="contact-hours">Monday - Friday, 10:00 AM - 7:00 PM (IST)</p>
+            <div className="contact-subline"><MessageSquare size={17} /> <span>Software project discussions by email or phone.</span></div>
+          </div>
+        </article>
       </section>
       <section className="section contact-note">
         <h2>What to include in your enquiry</h2>
