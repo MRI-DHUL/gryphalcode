@@ -3,7 +3,7 @@ import path from 'node:path'
 import { createServer } from 'vite'
 import React from 'react'
 import { renderToString } from 'react-dom/server'
-import { StaticRouter } from 'react-router-dom/server'
+import { StaticRouter } from 'react-router'
 
 const root = process.cwd()
 const distDir = path.join(root, 'dist')
