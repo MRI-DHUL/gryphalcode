@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowUpRight, ChevronDown, Menu, X } from 'lucide-react'
 import { NavLink, useLocation } from 'react-router-dom'
+import './navigation.css'
 
 const primaryLinks = [
   ['/', 'Home'],
@@ -87,7 +88,7 @@ export default function Navbar() {
           </NavLink>
         ))}
 
-        <div className={resourceActive || resourcesOpen ? 'nav-dropdown active' : 'nav-dropdown'}>
+        <div className={`nav-dropdown${resourceActive ? ' active' : ''}${resourcesOpen ? ' open' : ''}`}>
           <button
             className="nav-dropdown-trigger"
             type="button"
