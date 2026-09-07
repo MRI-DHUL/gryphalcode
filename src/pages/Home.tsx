@@ -1,5 +1,6 @@
 import { ArrowRight, ArrowUpRight, Check } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
+import SEO from '../components/SEO'
 
 const services = [
   ['01', 'Custom Software', 'Purpose-built applications designed around your business.'],
@@ -20,6 +21,7 @@ const process = [
 export default function Home() {
   return (
     <>
+      <SEO title="GryphalCode | Software Engineering & Technology Services" description="GryphalCode builds reliable software, web, mobile, cloud, and backend solutions for businesses." path="/" />
       <section className="hero page-section">
         <div className="hero-content">
           <p className="eyebrow">SOFTWARE · ENGINEERING · DIGITAL</p>
