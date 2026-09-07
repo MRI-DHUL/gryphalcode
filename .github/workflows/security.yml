@@ -27,7 +27,22 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: npm audit
-        run: npm audit --audit-level=high
+        run: |
+          mkdir -p evidence
+          set +e
+          npm audit --audit-level=high --json > evidence/npm-audit.json
+          status=$?
+          set -e
+          echo "npm audit exit code: $status" > evidence/npm-audit-status.txt
+          exit "$status"
+      - name: Upload dependency evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gryphalcode-dependency-audit-evidence
+          path: evidence/
+          if-no-files-found: warn
+          retention-days: 14
 
   secret-scan:
     name: Secret scan
@@ -41,6 +56,24 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Collect secret-scan evidence
+        if: always()
+        run: |
+          mkdir -p evidence
+          {
+            echo "Gitleaks evidence"
+            echo "Commit: $GITHUB_SHA"
+            echo "Scan scope: full repository history"
+            echo "Workflow result: ${{ job.status }}"
+          } > evidence/gitleaks-summary.txt
+      - name: Upload secret-scan evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gryphalcode-secret-scan-evidence
+          path: evidence/
+          if-no-files-found: warn
+          retention-days: 14
 
   semgrep:
     name: Static security analysis
@@ -52,6 +85,24 @@ jobs:
         uses: semgrep/semgrep-action@v1
         with:
           config: p/javascript
+      - name: Collect Semgrep evidence
+        if: always()
+        run: |
+          mkdir -p evidence
+          {
+            echo "Semgrep evidence"
+            echo "Commit: $GITHUB_SHA"
+            echo "Configuration: p/javascript"
+            echo "Workflow result: ${{ job.status }}"
+          } > evidence/semgrep-summary.txt
+      - name: Upload Semgrep evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gryphalcode-semgrep-evidence
+          path: evidence/
+          if-no-files-found: warn
+          retention-days: 14
 
   codeql:
     name: CodeQL analysis
