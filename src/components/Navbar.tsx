@@ -35,6 +35,11 @@ export default function Navbar() {
     }
   }, [open])
 
+  useEffect(() => {
+    document.body.classList.toggle('menu-open', open)
+    return () => document.body.classList.remove('menu-open')
+  }, [open])
+
   return (
     <header className="navbar" ref={menuRef}>
       <NavLink className="brand" to="/" onClick={() => setOpen(false)} aria-label="GryphalCode home">
