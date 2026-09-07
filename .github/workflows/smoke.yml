@@ -42,6 +42,7 @@ jobs:
             echo "Testing $path"
             curl --fail --silent --show-error "http://127.0.0.1:4173$path" | grep -q 'GryphalCode'
           done
-      - name: Verify 404 handling
+      - name: Verify SPA 404 route
         run: |
           curl --fail --silent http://127.0.0.1:4173/this-route-should-not-exist | grep -q 'Page Not Found'
+          curl --fail --silent http://127.0.0.1:4173/this-route-should-not-exist | grep -q 'This page doesn'
