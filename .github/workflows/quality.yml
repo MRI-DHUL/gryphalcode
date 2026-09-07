@@ -32,3 +32,32 @@ jobs:
             echo 'Debug statements found in src.'
             exit 1
           fi
+      - name: Collect code-quality evidence
+        if: always()
+        run: |
+          mkdir -p evidence
+          {
+            echo "GryphalCode code-quality evidence"
+            echo "Commit: $GITHUB_SHA"
+            echo "Node: $(node --version)"
+            echo "npm: $(npm --version)"
+            echo "Workflow result: ${{ job.status }}"
+            echo
+            echo "TypeScript project files:"
+            find src -type f \( -name '*.ts' -o -name '*.tsx' \) -print | sort
+            echo
+            echo "Debug statement scan:"
+            if grep -RInE 'console\.log\(|debugger[[:space:];]' src --exclude='*.map'; then
+              echo "FAIL: debug statements found"
+            else
+              echo "PASS: no console.log/debugger statements found"
+            fi
+          } > evidence/quality.txt
+      - name: Upload code-quality evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gryphalcode-quality-evidence
+          path: evidence/
+          if-no-files-found: warn
+          retention-days: 14
